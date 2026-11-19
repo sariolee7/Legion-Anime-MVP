@@ -40,7 +40,8 @@ export function PosterSkeleton({ width = layout.posterWidthRail }: { width?: num
   return (
     <View style={{ width }}>
       <Skeleton style={{ width, aspectRatio: layout.posterAspect }} />
-      <Skeleton style={{ height: 12, width: width * 0.75, marginTop: 6 }} />
+      <Skeleton style={{ height: 10, width: width * 0.92, marginTop: 7 }} />
+      <Skeleton style={{ height: 10, width: width * 0.6, marginTop: 4 }} />
     </View>
   );
 }
@@ -61,6 +62,11 @@ export function EpisodeRowSkeleton() {
         <Skeleton style={{ height: 12, width: '70%' }} />
         <Skeleton style={{ height: 12, width: '45%', marginTop: 8 }} />
       </View>
+      <View style={styles.episodeActions}>
+        {[0, 1, 2].map((key) => (
+          <Skeleton key={key} style={{ width: 20, height: 20, borderRadius: 10 }} />
+        ))}
+      </View>
     </View>
   );
 }
@@ -68,19 +74,24 @@ export function EpisodeRowSkeleton() {
 const styles = StyleSheet.create({
   episodeRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.elevated,
     borderRadius: layout.cardRadius,
     padding: 8,
-    gap: 12,
+    gap: 10,
     marginHorizontal: layout.screenPadding,
     marginBottom: 10,
   },
   episodeThumb: {
-    width: layout.episodeThumbSize,
-    height: layout.episodeThumbSize,
+    width: layout.episodeThumbWidth,
+    height: layout.episodeThumbHeight,
   },
   episodeBody: {
     flex: 1,
     justifyContent: 'center',
+  },
+  episodeActions: {
+    flexDirection: 'row',
+    gap: 8,
   },
 });

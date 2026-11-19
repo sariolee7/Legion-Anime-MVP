@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   backButton: {
     width: 38,
     height: 38,
-    borderRadius: 3,
+    borderRadius: layout.cardRadius,
     backgroundColor: colors.elevated,
     alignItems: 'center',
     justifyContent: 'center',

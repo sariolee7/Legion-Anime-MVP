@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router';
 import { X } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppImage } from '@/components/common/app-image';
+import { TruncatedTitle } from '@/components/common/truncated-title';
 import { colors, layout, typography } from '@/theme';
 import type { AnimeListItem } from '@/types/anime';
 
@@ -34,18 +35,25 @@ export function PosterCard({ item, width = layout.posterWidthRail, progress, onR
         onPress={handlePress}
         accessibilityRole="button"
         accessibilityLabel={`Ver ${item.title}`}
-        style={({ pressed }) => [pressed && { opacity: 0.82 }]}>
+        style={({ pressed, ...state }) => [
+          (state as { hovered?: boolean }).hovered && styles.hover,
+          pressed && { opacity: 0.82 },
+        ]}
+        {...(Platform.OS === 'web' ? { dataSet: { carousel: 'card' } } : {})}>
         <View style={[styles.posterContainer, { width, aspectRatio: layout.posterAspect }]}>
-          <AppImage uri={item.image} radius={layout.cardRadius} style={StyleSheet.absoluteFill} />
+          <AppImage
+            uri={item.image}
+            radius={layout.cardRadius}
+            brandedFallback
+            style={StyleSheet.absoluteFill}
+          />
           {typeof progress === 'number' && progress > 0 ? (
             <View style={styles.progressTrack}>
               <View style={[styles.progressFill, { width: `${Math.min(100, Math.round(progress * 100))}%` }]} />
             </View>
           ) : null}
         </View>
-        <Text numberOfLines={1} style={styles.title}>
-          {item.title}
-        </Text>
+        <TruncatedTitle text={item.title} style={styles.title} />
       </Pressable>
       {onRemove ? (
         <Pressable
@@ -67,9 +75,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: colors.placeholder,
   },
+  hover: {
+    transform: [{ scale: 1.025 }],
+  },
   title: {
     ...typography.cardTitle,
-    marginTop: 4,
+    marginTop: 6,
+    minHeight: typography.cardTitle.lineHeight * 2,
   },
   progressTrack: {
     position: 'absolute',
@@ -85,12 +97,12 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: 'rgba(0, 0, 0, 0.72)',
+    top: 6,
+    right: 6,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
     alignItems: 'center',
     justifyContent: 'center',
   },

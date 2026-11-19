@@ -34,9 +34,7 @@ client.interceptors.response.use(
 
     if (!error.response) {
       return Promise.reject(
-        new ApiClientError(
-          'Sin conexión con la API. Verifica que el servidor anime1v-api esté corriendo y que la URL configurada sea correcta.'
-        )
+        new ApiClientError('Sin conexión. Revisa tu red e inténtalo de nuevo.')
       );
     }
 

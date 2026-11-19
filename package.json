@@ -17,7 +17,7 @@
     "harness:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 status",
     "harness:smoke": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 smoke",
     "harness:smoke:full": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 smoke -Full",
-    "harness:verify": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 verify",
-    "harness:verify:fast": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 verify -SkipExport"
+    "harness:verify": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 verify -Full",
+    "harness:verify:fast": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 verify -SkipExport -Full"
   }
 }

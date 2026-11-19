@@ -45,10 +45,10 @@ export function Chip({ label, active, disabled, onPress, style }: ChipProps) {
 const styles = StyleSheet.create({
   chip: {
     backgroundColor: colors.elevated,
-    borderRadius: 3,
+    borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 7,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
   },
   chipActive: {

@@ -6,14 +6,15 @@ interface SectionHeaderProps {
   title: string;
   actionLabel?: string;
   onAction?: () => void;
+  inset?: boolean;
 }
 
-export function SectionHeader({ title, actionLabel, onAction }: SectionHeaderProps) {
+export function SectionHeader({ title, actionLabel, onAction, inset = true }: SectionHeaderProps) {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, !inset && styles.noInset]}>
       <Text style={styles.title}>{title}</Text>
       {actionLabel && onAction ? (
-        <Pressable onPress={onAction} hitSlop={8}>
+        <Pressable onPress={onAction} hitSlop={8} style={({ pressed }) => pressed && { opacity: 0.7 }}>
           <Text style={styles.action}>{actionLabel}</Text>
         </Pressable>
       ) : null}
@@ -34,8 +35,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 12,
     paddingHorizontal: layout.sectionPaddingH,
     paddingVertical: layout.sectionPaddingV,
+  },
+  noInset: {
+    paddingHorizontal: 0,
   },
   title: typography.sectionTitle,
   action: {
@@ -45,7 +50,12 @@ const styles = StyleSheet.create({
   },
   subContainer: {
     paddingHorizontal: layout.sectionPaddingH,
-    paddingVertical: layout.sectionPaddingV,
+    paddingTop: 6,
+    paddingBottom: 6,
   },
-  subtitle: typography.sectionLabel,
+  subtitle: {
+    ...typography.sectionLabel,
+    color: colors.textMuted,
+    fontSize: 13,
+  },
 });

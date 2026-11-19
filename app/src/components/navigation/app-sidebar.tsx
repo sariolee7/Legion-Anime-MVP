@@ -2,8 +2,7 @@ import { usePathname, useRouter } from 'expo-router';
 import { CircleUser, Heart, Home, LayoutGrid, type LucideIcon } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { useApiHealth } from '@/hooks/use-api-health';
-import { describeApiTarget } from '@/services/anime/api';
+import { BrandLogo } from '@/components/common/brand-logo';
 import { colors, fonts, layout } from '@/theme';
 
 interface NavItem {
@@ -22,15 +21,15 @@ const NAV_ITEMS: NavItem[] = [
 export function AppSidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const health = useApiHealth();
-  const online = health.data === true;
 
   return (
     <View style={styles.sidebar}>
       <Pressable onPress={() => router.push('/')} style={styles.brand}>
-        <Text style={styles.brandKicker}>LEGIÓN</Text>
-        <Text style={styles.brandName}>ANIME</Text>
-        <Text style={styles.brandTag}>STREAMING MVP</Text>
+        <BrandLogo size={46} />
+        <View style={styles.brandText}>
+          <Text style={styles.brandKicker}>LEGIÓN</Text>
+          <Text style={styles.brandName}>ANIME</Text>
+        </View>
       </Pressable>
 
       <View style={styles.nav}>
@@ -50,18 +49,6 @@ export function AppSidebar() {
           );
         })}
       </View>
-
-      <View style={styles.footer}>
-        <Pressable
-          onPress={() => router.push('/settings')}
-          style={({ pressed }) => [styles.statusRow, pressed && { opacity: 0.8 }]}>
-          <View style={[styles.statusDot, { backgroundColor: online ? colors.success : colors.error }]} />
-          <Text style={styles.statusText}>{online ? 'API conectada' : 'API desconectada'}</Text>
-        </Pressable>
-        <Text numberOfLines={1} style={styles.apiUrl}>
-          {describeApiTarget()}
-        </Text>
-      </View>
     </View>
   );
 }
@@ -74,29 +61,27 @@ const styles = StyleSheet.create({
     borderRightColor: colors.border,
     paddingVertical: 28,
     paddingHorizontal: 16,
-    justifyContent: 'space-between',
   },
   brand: {
-    paddingHorizontal: 10,
-    gap: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 6,
+  },
+  brandText: {
+    gap: 1,
   },
   brandKicker: {
     fontFamily: fonts.mono,
-    fontSize: 11,
-    letterSpacing: 6,
+    fontSize: 10,
+    letterSpacing: 4,
     color: colors.textMuted,
   },
   brandName: {
     fontFamily: fonts.display,
-    fontSize: 30,
+    fontSize: 24,
     color: colors.textPrimary,
-    lineHeight: 34,
-  },
-  brandTag: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    letterSpacing: 3,
-    color: colors.textMuted,
+    lineHeight: 28,
   },
   nav: {
     flex: 1,
@@ -109,7 +94,7 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingVertical: 11,
     paddingLeft: 14,
-    borderRadius: 4,
+    borderRadius: layout.cardRadius,
   },
   navItemActive: {
     backgroundColor: colors.elevated,
@@ -117,8 +102,8 @@ const styles = StyleSheet.create({
   activeBar: {
     position: 'absolute',
     left: 0,
-    top: 8,
-    bottom: 8,
+    top: 10,
+    bottom: 10,
     width: 2,
     borderRadius: 1,
     backgroundColor: 'transparent',
@@ -134,29 +119,5 @@ const styles = StyleSheet.create({
   navLabelActive: {
     color: colors.white,
     fontFamily: fonts.uiMedium,
-  },
-  footer: {
-    gap: 6,
-    paddingHorizontal: 10,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  statusDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
-  },
-  statusText: {
-    fontFamily: fonts.ui,
-    fontSize: 11,
-    color: colors.textMuted,
-  },
-  apiUrl: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    color: colors.textMuted,
   },
 });

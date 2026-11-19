@@ -1,25 +1,18 @@
 import { useQueries } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
-import { GenreCard } from '@/components/anime/genre-card';
-import { PosterCard } from '@/components/anime/poster-card';
-import { Rail } from '@/components/anime/rail';
+import { Carousel, type CarouselItem } from '@/components/anime/carousel';
 import { SectionHeader } from '@/components/anime/section-header';
-import { TypeCard } from '@/components/anime/type-card';
 import { AppHeader } from '@/components/common/app-header';
-import { EmptyState } from '@/components/common/empty-state';
-import { ErrorState } from '@/components/common/error-state';
 import { Screen } from '@/components/common/screen';
-import { PosterSkeleton } from '@/components/common/skeleton';
 import { ANIME_TYPES, FEATURED_GENRES } from '@/constants/genres';
 import { flattenCatalog, useCatalog } from '@/hooks/use-catalog';
 import { fetchCatalog } from '@/services/anime/api';
 import { useSettingsStore } from '@/stores/settings-store';
-import { colors } from '@/theme';
 
-const FEATURED = FEATURED_GENRES.slice(0, 6);
+const FEATURED = FEATURED_GENRES;
 
 export function DirectoryScreen() {
   const router = useRouter();
@@ -37,106 +30,91 @@ export function DirectoryScreen() {
     })),
   });
 
-  const failed = catalog.isError && items.length === 0;
+  // Elige una portada distinta por género; además evita reutilizar las portadas
+  // ya visibles en "En Emisión". Si no hay imágenes únicas, la tarjeta usa su
+  // gradiente propio en lugar de repetir otra portada.
+  const genreImages = new Map<string, string>();
+  const usedImages = new Set<string>(airing.map((item) => item.image).filter((image): image is string => Boolean(image)));
+  FEATURED.forEach((genre, index) => {
+    const results = genreCoverQueries[index]?.data?.results ?? [];
+    const match = results.find((item) => item.image && !usedImages.has(item.image));
+    if (match?.image) {
+      usedImages.add(match.image);
+      genreImages.set(genre.slug, match.image);
+    }
+  });
+
+  const airingItems: CarouselItem[] = airing.map((item) => ({
+    key: item.url,
+    title: item.title,
+    image: item.image,
+  }));
+
+  const genreItems: CarouselItem[] = FEATURED.map((genre) => ({
+    key: genre.slug,
+    title: genre.name,
+    slug: genre.slug,
+    image: genreImages.get(genre.slug) ?? null,
+  }));
+
+  const typeItems: CarouselItem[] = ANIME_TYPES.map((type) => ({
+    key: type.id,
+    title: type.name,
+  }));
+
+  const openAnime = (item: CarouselItem) => {
+    router.push({
+      pathname: '/anime',
+      params: { url: item.key, title: item.title, image: item.image ?? '' },
+    });
+  };
+
+  const openGenre = (item: CarouselItem) => {
+    router.push({ pathname: '/grid', params: { title: item.title, genre: item.key } });
+  };
+
+  const openType = (item: CarouselItem) => {
+    router.push({ pathname: '/grid', params: { title: item.title, type: item.key } });
+  };
+
+  const catalogError = catalog.isError
+    ? (catalog.error as Error)?.message ?? 'No se pudo cargar el directorio.'
+    : undefined;
 
   return (
     <Screen refreshing={catalog.isRefetching} onRefresh={() => void catalog.refetch()}>
       <AppHeader />
       <SectionHeader title="Directorio" />
-
-      {catalog.isLoading ? (
-        <View>
-          <SectionHeader title="En Emisión" />
-          <View style={styles.surfaceBlock}>
-            <Rail>
-              {[0, 1, 2, 3].map((key) => (
-                <PosterSkeleton key={key} />
-              ))}
-            </Rail>
-          </View>
-          <SectionHeader title="Géneros" />
-          <View style={styles.surfaceBlock}>
-            <Rail>
-              {[0, 1, 2, 3].map((key) => (
-                <PosterSkeleton key={key} />
-              ))}
-            </Rail>
-          </View>
-        </View>
-      ) : failed ? (
-        <ErrorState
-          title="No se pudo cargar el directorio"
-          message={(catalog.error as Error)?.message ?? 'Error inesperado.'}
+      <View>
+        <Carousel
+          title="En Emisión"
+          items={airingItems}
+          cardType="portada"
+          loading={catalog.isLoading}
+          errorMessage={catalogError}
           onRetry={() => void catalog.refetch()}
+          actionLabel="Ver todo"
+          onAction={() => router.push({ pathname: '/grid', params: { title: 'En Emisión' } })}
+          onItemPress={openAnime}
+          hideWhenEmpty={false}
+          emptyMessage="Sin títulos disponibles por ahora."
         />
-      ) : items.length === 0 ? (
-        <EmptyState
-          title="Sin títulos disponibles"
-          description="La API no devolvió resultados para este proveedor."
-          actionLabel="Reintentar"
-          onAction={() => void catalog.refetch()}
+
+        <Carousel
+          title="Géneros"
+          items={genreItems}
+          cardType="genero"
+          loading={genreCoverQueries.some((query) => query.isLoading)}
+          onItemPress={openGenre}
         />
-      ) : (
-        <View>
-          <SectionHeader
-            title="En Emisión"
-            actionLabel="Ver todo"
-            onAction={() => router.push({ pathname: '/grid', params: { title: 'En Emisión' } })}
-          />
-          <View style={styles.surfaceBlock}>
-            <Rail>
-              {airing.map((item) => (
-                <PosterCard key={item.url} item={item} />
-              ))}
-            </Rail>
-          </View>
 
-          <SectionHeader title="Géneros" />
-          <View style={styles.surfaceBlock}>
-            <Rail>
-              {FEATURED.map((genre, index) => (
-                <GenreCard
-                  key={genre.slug}
-                  label={genre.name}
-                  image={genreCoverQueries[index]?.data?.results[0]?.image ?? null}
-                  onPress={() =>
-                    router.push({
-                      pathname: '/grid',
-                      params: { title: genre.name, genre: genre.slug },
-                    })
-                  }
-                />
-              ))}
-            </Rail>
-          </View>
-
-          <SectionHeader title="Tipo" />
-          <View style={styles.surfaceBlock}>
-            <Rail>
-              {ANIME_TYPES.map((type) => (
-                <TypeCard
-                  key={type.id}
-                  label={type.name}
-                  symbol={type.name.charAt(0)}
-                  onPress={() =>
-                    router.push({
-                      pathname: '/grid',
-                      params: { title: type.name, type: type.id },
-                    })
-                  }
-                />
-              ))}
-            </Rail>
-          </View>
-        </View>
-      )}
+        <Carousel
+          title="Tipo"
+          items={typeItems}
+          cardType="tipo"
+          onItemPress={openType}
+        />
+      </View>
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  surfaceBlock: {
-    backgroundColor: colors.surface,
-    paddingVertical: 6,
-  },
-});

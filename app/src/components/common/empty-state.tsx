@@ -1,7 +1,7 @@
 import { Clapperboard } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, fonts } from '@/theme';
+import { colors, fonts, layout } from '@/theme';
 
 interface EmptyStateProps {
   title: string;
@@ -52,11 +52,11 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 8,
     backgroundColor: colors.elevated,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
     paddingHorizontal: 18,
-    paddingVertical: 9,
-    borderRadius: 3,
+    paddingVertical: 10,
+    borderRadius: layout.cardRadius,
   },
   buttonText: {
     color: colors.textPrimary,

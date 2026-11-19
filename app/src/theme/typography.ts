@@ -13,20 +13,20 @@ export const fonts = {
 export const typography = {
   screenTitle: {
     fontFamily: fonts.mono,
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 26,
     color: colors.textPrimary,
   },
   sectionTitle: {
     fontFamily: fonts.mono,
-    fontSize: 20,
-    lineHeight: 26,
+    fontSize: 18,
+    lineHeight: 24,
     color: colors.textPrimary,
   },
   sectionLabel: {
     fontFamily: fonts.mono,
-    fontSize: 15,
-    lineHeight: 26,
+    fontSize: 14,
+    lineHeight: 22,
     color: colors.textPrimary,
   },
   heroTitle: {

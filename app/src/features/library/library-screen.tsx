@@ -137,7 +137,7 @@ export function LibraryScreen() {
         <PosterGrid
           items={items}
           onRemove={handleRemove}
-          header={<SectionHeader title={activeLabel} />}
+          header={<SectionHeader title={activeLabel} inset={false} />}
           empty={
             <EmptyState
               title={`Sin títulos en ${activeLabel}`}
@@ -154,23 +154,25 @@ export function LibraryScreen() {
 
 const styles = StyleSheet.create({
   tabStrip: {
-    backgroundColor: colors.elevated,
+    backgroundColor: colors.background,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
   },
   tabStripContent: {
     paddingHorizontal: layout.sectionPaddingH,
-    gap: 28,
+    gap: 24,
     alignItems: 'center',
   },
   tabButton: {
-    paddingTop: 12,
+    paddingTop: 10,
     paddingBottom: 8,
     alignItems: 'center',
-    gap: 6,
+    gap: 5,
   },
   tabLabel: {
     fontFamily: fonts.mono,
-    fontSize: 18,
-    lineHeight: 24,
+    fontSize: 13,
+    lineHeight: 18,
     color: colors.textMuted,
   },
   tabLabelActive: {

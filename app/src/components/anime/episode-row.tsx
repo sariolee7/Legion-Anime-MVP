@@ -1,7 +1,9 @@
-import { CircleCheckBig, Heart, Play } from 'lucide-react-native';
+import { EyeOff, Heart, ListPlus, Play } from 'lucide-react-native';
+import type { ComponentType } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AppImage } from '@/components/common/app-image';
+import { TruncatedTitle } from '@/components/common/truncated-title';
 import { colors, fonts, layout } from '@/theme';
 
 interface EpisodeRowProps {
@@ -12,8 +14,30 @@ interface EpisodeRowProps {
   onPress: () => void;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
-  isCompleted?: boolean;
-  onToggleCompleted?: () => void;
+  isInList?: boolean;
+  onAddToList?: () => void;
+  isDiscarded?: boolean;
+  onToggleDiscarded?: () => void;
+}
+
+interface RowActionProps {
+  Icon: ComponentType<{ size?: number; color?: string; strokeWidth?: number }>;
+  active?: boolean;
+  label: string;
+  onPress: () => void;
+}
+
+function RowAction({ Icon, active = false, label, onPress }: RowActionProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      hitSlop={8}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.65 }]}>
+      <Icon size={18} color={active ? colors.white : colors.textMuted} strokeWidth={active ? 2.2 : 1.8} />
+    </Pressable>
+  );
 }
 
 export function EpisodeRow({
@@ -24,8 +48,10 @@ export function EpisodeRow({
   onPress,
   isFavorite,
   onToggleFavorite,
-  isCompleted,
-  onToggleCompleted,
+  isInList,
+  onAddToList,
+  isDiscarded,
+  onToggleDiscarded,
 }: EpisodeRowProps) {
   return (
     <View style={styles.row}>
@@ -35,59 +61,59 @@ export function EpisodeRow({
         accessibilityLabel={`Reproducir ${title}, ${subtitle}`}
         style={({ pressed }) => [styles.thumbPress, pressed && { opacity: 0.85 }]}>
         <View style={styles.thumb}>
-          <AppImage uri={image} radius={layout.cardRadius} style={StyleSheet.absoluteFill} />
+          <AppImage uri={image} radius={8} brandedFallback style={StyleSheet.absoluteFill} />
         </View>
       </Pressable>
 
-      <View style={styles.body}>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`Reproducir ${title}, ${subtitle}`}
+        style={({ pressed }) => [styles.body, pressed && { opacity: 0.82 }]}>
+        <TruncatedTitle text={title} style={styles.title} />
+        <Text numberOfLines={1} style={styles.subtitle}>
+          {subtitle}
+        </Text>
+        {typeof progress === 'number' && progress > 0 ? (
+          <View style={styles.progressTrack}>
+            <View style={[styles.progressFill, { width: `${Math.min(100, Math.round(progress * 100))}%` }]} />
+          </View>
+        ) : null}
+      </Pressable>
+
+      <View style={styles.actions}>
+        {onToggleFavorite ? (
+          <RowAction
+            Icon={Heart}
+            active={isFavorite}
+            label={isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+            onPress={onToggleFavorite}
+          />
+        ) : null}
+        {onAddToList ? (
+          <RowAction
+            Icon={ListPlus}
+            active={isInList}
+            label={isInList ? 'Quitar de Ver Luego' : 'Agregar a Ver Luego'}
+            onPress={onAddToList}
+          />
+        ) : null}
+        {onToggleDiscarded ? (
+          <RowAction
+            Icon={EyeOff}
+            active={isDiscarded}
+            label={isDiscarded ? 'Quitar de descartados' : 'Marcar como no visto'}
+            onPress={onToggleDiscarded}
+          />
+        ) : null}
         <Pressable
           onPress={onPress}
+          hitSlop={8}
           accessibilityRole="button"
-          accessibilityLabel={`Reproducir ${title}, ${subtitle}`}
-          style={({ pressed }) => [styles.textPress, pressed && { opacity: 0.82 }]}>
-          <Text numberOfLines={1} style={styles.title}>
-            {title}
-          </Text>
-          <Text numberOfLines={1} style={styles.subtitle}>
-            {subtitle}
-          </Text>
-          {typeof progress === 'number' && progress > 0 ? (
-            <View style={styles.progressTrack}>
-              <View style={[styles.progressFill, { width: `${Math.min(100, Math.round(progress * 100))}%` }]} />
-            </View>
-          ) : null}
+          accessibilityLabel={`Reproducir ${title}`}
+          style={({ pressed }) => [styles.playHint, pressed && { opacity: 0.7 }]}>
+          <Play size={13} color={colors.white} fill={colors.white} />
         </Pressable>
-
-        <View style={styles.actions}>
-          {onToggleFavorite ? (
-            <Pressable
-              onPress={onToggleFavorite}
-              hitSlop={10}
-              accessibilityRole="button"
-              accessibilityLabel={isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}>
-              <Heart
-                size={22}
-                color={isFavorite ? colors.white : colors.textSecondary}
-                fill={isFavorite ? colors.white : 'transparent'}
-              />
-            </Pressable>
-          ) : null}
-          {onToggleCompleted ? (
-            <Pressable
-              onPress={onToggleCompleted}
-              hitSlop={10}
-              accessibilityRole="button"
-              accessibilityLabel={isCompleted ? 'Marcar como no visto' : 'Marcar como visto'}>
-              <CircleCheckBig
-                size={20}
-                color={isCompleted ? colors.white : colors.textSecondary}
-              />
-            </Pressable>
-          ) : null}
-          <View style={styles.playHint}>
-            <Play size={14} color={colors.white} fill={colors.white} />
-          </View>
-        </View>
       </View>
     </View>
   );
@@ -100,45 +126,43 @@ const styles = StyleSheet.create({
     backgroundColor: colors.elevated,
     borderRadius: layout.cardRadius,
     padding: 8,
-    paddingRight: 16,
-    gap: 12,
+    paddingRight: 12,
+    gap: 10,
   },
   thumbPress: {
-    borderRadius: layout.cardRadius,
+    borderRadius: 8,
   },
   thumb: {
-    width: layout.episodeThumbSize,
-    height: layout.episodeThumbSize,
-    borderRadius: layout.cardRadius,
+    width: layout.episodeThumbWidth,
+    height: layout.episodeThumbHeight,
+    borderRadius: 8,
     overflow: 'hidden',
     backgroundColor: colors.placeholder,
   },
   body: {
     flex: 1,
-    gap: 6,
+    gap: 2,
     justifyContent: 'center',
-  },
-  textPress: {
-    gap: 3,
+    minHeight: layout.episodeThumbHeight,
   },
   title: {
-    color: colors.textSecondary,
+    color: colors.textPrimary,
     fontFamily: fonts.uiSemiBold,
     fontSize: 12,
-    lineHeight: 17,
+    lineHeight: 16,
   },
   subtitle: {
-    color: colors.textSecondary,
+    color: colors.textMuted,
     fontFamily: fonts.ui,
-    fontSize: 12,
-    lineHeight: 17,
+    fontSize: 11,
+    lineHeight: 15,
   },
   progressTrack: {
     height: 2,
-    width: '60%',
+    width: '70%',
     backgroundColor: colors.border,
     borderRadius: 1,
-    marginTop: 3,
+    marginTop: 4,
     overflow: 'hidden',
   },
   progressFill: {
@@ -148,7 +172,13 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 4,
+  },
+  actionButton: {
+    width: 26,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   playHint: {
     width: 26,
@@ -158,5 +188,6 @@ const styles = StyleSheet.create({
     borderColor: colors.textMuted,
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 2,
   },
 });

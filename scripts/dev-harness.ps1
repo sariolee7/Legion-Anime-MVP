@@ -371,20 +371,36 @@ function Invoke-Smoke {
         $subLinks = @($episode.data.streamLinks.SUB)
         Write-Ok "GET /episode => SUB=$($episode.data.variants.SUB) DUB=$($episode.data.variants.DUB) (servidores SUB: $($subLinks.Count))"
 
+        $resolved = $null
         if ($subLinks.Count -gt 0) {
+          # El reproductor hace fallback entre servidores: usamos el cascade real del backend
+          # (?urls=[...] con Promise.any) en vez de depender de un único servidor.
+          $subUrls = @($subLinks | ForEach-Object { $_.url })
+          $urlsJson = ConvertTo-Json -InputObject $subUrls -Compress
           try {
-            $resolved = Invoke-RestMethod ($BaseUrl + '/resolve?url=' + [uri]::EscapeDataString($subLinks[0].url)) -Headers $headers -TimeoutSec 120
-            $valid = $resolved.streamUrl -match '\.(mp4|m3u8|webm)'
-            if (-not $valid) { throw "enlace no reproducible: $($resolved.streamUrl)" }
-            Write-Ok "GET /resolve => $($resolved.server) ($($resolved.mediaType))"
+            $resolved = Invoke-RestMethod ($BaseUrl + '/resolve?urls=' + [uri]::EscapeDataString($urlsJson)) -Headers $headers -TimeoutSec 150
           } catch {
-            $failures++
-            Write-Fail "GET /resolve -> $($_.Exception.Message)"
+            Write-Warn "Cascade /resolve falló ($($_.Exception.Message)); probando servidores uno a uno"
+          }
+
+          if (-not $resolved) {
+            foreach ($link in $subLinks) {
+              try {
+                $candidate = Invoke-RestMethod ($BaseUrl + '/resolve?url=' + [uri]::EscapeDataString($link.url)) -Headers $headers -TimeoutSec 120
+                if ($candidate.streamUrl -match '\.(mp4|m3u8|webm)') { $resolved = $candidate; break }
+              } catch {
+                Write-Warn "Servidor $($link.server) no resolvió: $($_.Exception.Message)"
+              }
+            }
           }
         }
+
+        if (-not $resolved) { throw 'ningún servidor SUB devolvió un enlace reproducible' }
+        if ($resolved.streamUrl -notmatch '\.(mp4|m3u8|webm)') { throw "enlace no reproducible: $($resolved.streamUrl)" }
+        Write-Ok "GET /resolve => $($resolved.server) ($($resolved.mediaType)) desde $($resolved.resolvedFrom)"
       } catch {
         $failures++
-        Write-Fail "GET /episode -> $($_.Exception.Message)"
+        Write-Fail "GET /episode+/resolve -> $($_.Exception.Message)"
       }
     } else {
       $failures++

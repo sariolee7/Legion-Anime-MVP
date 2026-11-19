@@ -7,7 +7,6 @@ import { SectionHeader } from '@/components/anime/section-header';
 import { Chip } from '@/components/common/chip';
 import { SubpageHeader } from '@/components/common/subpage-header';
 import { PROVIDERS } from '@/constants/providers';
-import { setApiOverrides as applyApiOverrides, getConfiguredSources } from '@/services/api/config';
 import { useSettingsStore } from '@/stores/settings-store';
 import { colors, fonts, layout } from '@/theme';
 
@@ -15,44 +14,25 @@ export function SettingsScreen() {
   const queryClient = useQueryClient();
 
   const displayName = useSettingsStore((state) => state.displayName);
+  const email = useSettingsStore((state) => state.email);
   const provider = useSettingsStore((state) => state.provider);
   const variant = useSettingsStore((state) => state.variant);
   const autoplayNext = useSettingsStore((state) => state.autoplayNext);
-  const apiUrlOverride = useSettingsStore((state) => state.apiUrlOverride);
-  const apiKeyOverride = useSettingsStore((state) => state.apiKeyOverride);
 
   const setDisplayName = useSettingsStore((state) => state.setDisplayName);
+  const setEmail = useSettingsStore((state) => state.setEmail);
   const setProvider = useSettingsStore((state) => state.setProvider);
   const setVariant = useSettingsStore((state) => state.setVariant);
   const setAutoplayNext = useSettingsStore((state) => state.setAutoplayNext);
-  const setStoreApiOverrides = useSettingsStore((state) => state.setApiOverrides);
 
-  const configured = getConfiguredSources();
   const [name, setName] = useState(displayName);
-  const [apiUrl, setApiUrl] = useState(apiUrlOverride || configured.apiUrl);
-  const [apiKey, setApiKey] = useState(apiKeyOverride);
+  const [mail, setMail] = useState(email);
   const [feedback, setFeedback] = useState('');
 
   const applyProfile = () => {
     setDisplayName(name);
+    setEmail(mail);
     setFeedback('Perfil actualizado.');
-  };
-
-  const applyConnection = () => {
-    setStoreApiOverrides(apiUrl, apiKey);
-    applyApiOverrides({ apiUrl, apiKey });
-    void queryClient.invalidateQueries();
-    setFeedback('Conexión actualizada. Las consultas se recargarán con la nueva configuración.');
-  };
-
-  const resetConnection = () => {
-    setStoreApiOverrides('', '');
-    applyApiOverrides({ apiUrl: '', apiKey: '' });
-    const fresh = getConfiguredSources();
-    setApiUrl(fresh.apiUrl);
-    setApiKey('');
-    void queryClient.invalidateQueries();
-    setFeedback('Se restauró la configuración por defecto (variables de entorno o valores locales).');
   };
 
   const clearCache = () => {
@@ -75,6 +55,19 @@ export function SettingsScreen() {
             style={styles.input}
             maxLength={40}
           />
+          <Text style={styles.label}>Correo</Text>
+          <TextInput
+            value={mail}
+            onChangeText={setMail}
+            placeholder="tu@correo.com"
+            placeholderTextColor="#6F6F6F"
+            style={styles.input}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            maxLength={80}
+          />
+          <Text style={styles.hint}>El perfil es local y se guarda solo en este dispositivo.</Text>
           <Pressable onPress={applyProfile} style={styles.primaryButton}>
             <Text style={styles.primaryButtonText}>Guardar perfil</Text>
           </Pressable>
@@ -119,43 +112,6 @@ export function SettingsScreen() {
               trackColor={{ false: colors.border, true: colors.textMuted }}
               thumbColor={colors.white}
             />
-          </View>
-        </View>
-
-        <SectionHeader title="Conexión con la API" />
-        <View style={styles.card}>
-          <Text style={styles.label}>URL del servidor anime1v-api</Text>
-          <TextInput
-            value={apiUrl}
-            onChangeText={setApiUrl}
-            placeholder="http://192.168.0.10:3001"
-            placeholderTextColor="#6F6F6F"
-            style={styles.input}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <Text style={styles.label}>API Key</Text>
-          <TextInput
-            value={apiKey}
-            onChangeText={setApiKey}
-            placeholder="Usar la configurada en el servidor (dev-anime1v-key)"
-            placeholderTextColor="#6F6F6F"
-            style={styles.input}
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureTextEntry
-          />
-          <Text style={styles.hint}>
-            En un dispositivo Android físico usa la IP LAN de tu PC (ej. http://192.168.0.10:3001). En el emulador de
-            Android funciona 10.0.2.2:3001. En web, http://localhost:3001.
-          </Text>
-          <View style={styles.buttonRow}>
-            <Pressable onPress={applyConnection} style={[styles.primaryButton, styles.flexButton]}>
-              <Text style={styles.primaryButtonText}>Aplicar conexión</Text>
-            </Pressable>
-            <Pressable onPress={resetConnection} style={[styles.secondaryButton, styles.flexButton]}>
-              <Text style={styles.secondaryButtonText}>Restablecer</Text>
-            </Pressable>
           </View>
         </View>
 
@@ -204,7 +160,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: colors.elevated,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
     borderRadius: layout.cardRadius,
     height: 42,
@@ -255,7 +211,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 16,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
   },
   secondaryButtonText: {
@@ -263,20 +219,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textPrimary,
   },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  flexButton: {
-    flex: 1,
-  },
   feedbackBox: {
     marginHorizontal: layout.screenPadding,
     marginTop: 16,
     backgroundColor: colors.elevated,
     borderRadius: layout.cardRadius,
     padding: 12,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
   },
   feedbackText: {

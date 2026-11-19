@@ -84,7 +84,7 @@ npx expo start              # QR para probar en dispositivo
 | Emulador Android | `http://10.0.2.2:3001` |
 | Dispositivo físico | `http://<IP-LAN-del-PC>:3001` |
 
-La IP LAN se puede cambiar en caliente desde **Perfil → Configuración → Conexión con la API** (se guarda en el dispositivo). En el APK esto es clave: por defecto apunta a `localhost`, ajústala a la IP de tu PC para que el teléfono alcance el backend.
+La URL de la API se configura por entorno (`app/.env`) antes de compilar; por defecto apunta a `localhost`. Para un APK en un teléfono físico, edita `EXPO_PUBLIC_API_URL` con la IP LAN de tu PC y recompila.
 
 ---
 
@@ -97,7 +97,7 @@ La IP LAN se puede cambiar en caliente desde **Perfil → Configuración → Con
 - **Detalle**: poster/banner, título japonés, sinopsis, géneros navegables, score, tipo, episodios completos y acciones Favorito / Siguiendo / Ver Luego / Terminado.
 - **Reproductor**: consulta `/episode` → resuelve hasta 4 servidores reales con `/resolve` → reproduce MP4/HLS con `expo-video` (Android) o `<video>` + `hls.js` (web), guarda progreso y reanuda, anterior/siguiente episodio y autoavance.
 - **Listas**: Favoritos, Siguiendo, Ver Luego, Terminados, Últimos 30 Vistos y Descartados — persistencia con AsyncStorage.
-- **Perfil/Configuración**: preferencias (proveedor, SUB/DUB, autoavance), conexión API editable, limpieza de caché de consultas, estado de la API, términos/ayuda/acerca de.
+- **Perfil/Configuración**: preferencias (proveedor, SUB/DUB, autoavance), perfil local (usuario y correo), limpieza de caché de consultas, términos/ayuda/acerca de.
 - **Responsive**: barra inferior en móvil (idéntica a Figma); sidebar + contenido centrado (máx. 1200 px) en web/tablet.
 
 ---
@@ -151,7 +151,7 @@ npx eas-cli@latest build -p android --profile preview
 
 - La primera vez EAS vinculará el proyecto (puede pedir confirmación y escribirá `extra.eas.projectId` en `app.json`).
 - Al terminar, EAS entrega un enlace de descarga del **.apk**. Instálalo en el teléfono (permitir “orígenes desconocidos”).
-- **Importante**: el APK se compila con `EXPO_PUBLIC_API_URL=http://localhost:3001` (definido en el perfil). Al abrirlo, entra a **Perfil → Configuración → Conexión con la API** y cambia la URL a `http://<IP-LAN-de-tu-PC>:3001` (con el servidor corriendo en tu PC y ambos en la misma red). También puedes editar el `env` del perfil `preview` antes de compilar.
+- **Importante**: el APK se compila con `EXPO_PUBLIC_API_URL=http://localhost:3001` (definido en el perfil). Para un teléfono físico, edita `app/.env` o el `env` del perfil `preview` con `http://<IP-LAN-de-tu-PC>:3001` y vuelve a compilar, con el servidor corriendo en tu PC y ambos en la misma red.
 - Alternativa local sin EAS (requiere Android Studio): `npx expo run:android`.
 - No se afirma que el APK esté compilado en este repositorio: requiere tu cuenta Expo y ejecutar el comando anterior.
 

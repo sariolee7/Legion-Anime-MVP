@@ -26,9 +26,9 @@ export function AppTabBar({ state, navigateToTab, insets }: BottomTabBarProps) {
             accessibilityState={focused ? { selected: true } : {}}
             style={({ pressed }) => [styles.item, pressed && { opacity: 0.75 }]}>
             <meta.Icon
-              size={26}
+              size={23}
               color={focused ? colors.white : colors.iconMuted}
-              strokeWidth={focused ? 2.1 : 1.8}
+              strokeWidth={focused ? 2.2 : 1.7}
             />
             <Text style={[styles.label, focused && styles.labelActive]}>{meta.label}</Text>
           </Pressable>
@@ -41,7 +41,7 @@ export function AppTabBar({ state, navigateToTab, insets }: BottomTabBarProps) {
 const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
-    backgroundColor: colors.elevated,
+    backgroundColor: colors.surface,
     paddingTop: 8,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
@@ -51,15 +51,16 @@ const styles = StyleSheet.create({
     height: layout.navBarHeight - 16,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 5,
   },
   label: {
     fontFamily: fonts.ui,
-    fontSize: 12,
-    lineHeight: 17,
+    fontSize: 11,
+    lineHeight: 15,
     color: colors.textMuted,
   },
   labelActive: {
     color: colors.white,
+    fontFamily: fonts.uiMedium,
   },
 });
