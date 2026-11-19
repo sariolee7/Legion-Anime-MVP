@@ -1,0 +1,52 @@
+export interface AnimeGenre {
+  slug: string;
+  name: string;
+}
+
+// Slugs verified against the live AnimeAV1 catalog endpoint (/catalog?genre=).
+// Slugs that the upstream API silently ignores were excluded on purpose.
+export const GENRES: AnimeGenre[] = [
+  { slug: 'accion', name: 'Acción' },
+  { slug: 'aventura', name: 'Aventura' },
+  { slug: 'ciencia-ficcion', name: 'Ciencia Ficción' },
+  { slug: 'comedia', name: 'Comedia' },
+  { slug: 'deportes', name: 'Deportes' },
+  { slug: 'drama', name: 'Drama' },
+  { slug: 'ecchi', name: 'Ecchi' },
+  { slug: 'espacial', name: 'Espacial' },
+  { slug: 'harem', name: 'Harem' },
+  { slug: 'isekai', name: 'Isekai' },
+  { slug: 'artes-marciales', name: 'Artes Marciales' },
+  { slug: 'mecha', name: 'Mecha' },
+  { slug: 'militar', name: 'Militar' },
+  { slug: 'misterio', name: 'Misterio' },
+  { slug: 'musica', name: 'Música' },
+  { slug: 'psicologico', name: 'Psicológico' },
+  { slug: 'recuentos-de-la-vida', name: 'Recuentos de la vida' },
+  { slug: 'romance', name: 'Romance' },
+  { slug: 'seinen', name: 'Seinen' },
+  { slug: 'shounen', name: 'Shounen' },
+  { slug: 'sobrenatural', name: 'Sobrenatural' },
+  { slug: 'terror', name: 'Terror' },
+  { slug: 'vampiros', name: 'Vampiros' },
+];
+
+export const FEATURED_GENRES: AnimeGenre[] = GENRES.filter((genre) =>
+  ['accion', 'aventura', 'comedia', 'drama', 'isekai', 'romance', 'shounen', 'terror'].includes(
+    genre.slug
+  )
+);
+
+export interface AnimeType {
+  id: string;
+  name: string;
+  matchers: string[];
+}
+
+// `type` values come from the anime metadata (e.g. "TV Anime", "Película", "OVA").
+// Filtering by type is done client-side over the real catalog results.
+export const ANIME_TYPES: AnimeType[] = [
+  { id: 'anime', name: 'Anime', matchers: ['tv anime', 'anime', 'tv'] },
+  { id: 'pelicula', name: 'Película', matchers: ['película', 'pelicula', 'movie'] },
+  { id: 'ova', name: 'OVA', matchers: ['ova'] },
+];

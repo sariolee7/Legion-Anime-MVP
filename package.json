@@ -1,0 +1,23 @@
+{
+  "name": "legion-anime-mvp",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix app install",
+    "server": "npm --prefix server run dev",
+    "app": "npm --prefix app run start",
+    "web": "npm --prefix app run web",
+    "android": "npm --prefix app run android",
+    "typecheck": "npm --prefix app run typecheck",
+    "lint": "npm --prefix app run lint",
+    "harness:setup": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 setup",
+    "harness:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 start",
+    "harness:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 stop",
+    "harness:restart": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 restart",
+    "harness:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 status",
+    "harness:smoke": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 smoke",
+    "harness:smoke:full": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 smoke -Full",
+    "harness:verify": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 verify",
+    "harness:verify:fast": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-harness.ps1 verify -SkipExport"
+  }
+}

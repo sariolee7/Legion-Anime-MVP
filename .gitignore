@@ -1,0 +1,38 @@
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Variables de entorno (secretos / URLs locales)
+.env
+**/.env
+.env.local
+**/.env.local
+.env.*.local
+
+# Builds
+dist/
+**/dist/
+.expo/
+**/.expo/
+web-build/
+
+# Logs
+*.log
+logs/
+
+# Harness local (pids, logs)
+.harness/
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Descargas del motor de la API
+server/downloads/
