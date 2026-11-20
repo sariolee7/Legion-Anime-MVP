@@ -20,6 +20,10 @@ web-build/
 *.log
 logs/
 
+# APKs locales de prueba
+*.apk
+*.aab
+
 # Harness local (pids, logs)
 .harness/
 
